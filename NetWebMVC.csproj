@@ -44,10 +44,6 @@
     <Reference Include="Dos.ORM.MySql">
       <HintPath>..\..\Dos代码生成\Debug\Dos.ORM.MySql.dll</HintPath>
     </Reference>
-    <Reference Include="MVC, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>Web\Publish\MVC.dll</HintPath>
-    </Reference>
     <Reference Include="MySql.Data">
       <HintPath>..\..\Dos代码生成\Debug\MySql.Data.dll</HintPath>
     </Reference>
@@ -89,6 +85,7 @@
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
+    <None Include="packages.config" />
     <None Include="Web\Publish\assets\font\iconfont.eot" />
     <None Include="Web\Publish\assets\font\iconfont.ttf" />
     <None Include="Web\Publish\assets\font\iconfont.woff" />
@@ -222,6 +219,12 @@
     <Content Include="Web\Publish\View\include.html" />
     <Content Include="Web\Publish\View\index.html" />
     <Content Include="Web\Publish\View\login.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="MVC\MVC.csproj">
+      <Project>{7bd84a34-1001-45f1-afaf-f250daa4252a}</Project>
+      <Name>MVC</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

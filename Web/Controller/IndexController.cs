@@ -16,10 +16,12 @@ namespace NetWebMVC.Web.Controller
         public void Index()
         {
 
-
-            //  ShowText("hello");    
+            //JObject jo = new JObject();
+          // jo["account"] = "aaaaaa";
+        //   ShowText(jo.ToString());
+              ShowText("hello");    
            // if(isPOST())
-            ShowHTML("login");
+          //  ShowHTML("login");
         }
         public void Say(string name, int age, float a, double b, DateTime dd)
         {
@@ -34,7 +36,7 @@ namespace NetWebMVC.Web.Controller
         {
             string name = Input("name");
             //  SetAttr("name", "大家好");
-            var list = DB.Context.From<tb_order>().ToFirst() ;
+            var list = DB.Context.From<tb_order>().ToDataTable() ;
             // SetAttr("list", list);
             //   var one = DB.Context.From<tb_project>().First();
             //   SetAttr("project", one);

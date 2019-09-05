@@ -14,6 +14,7 @@ namespace NetWebMVC
             SetConfig();
             SetRoule();
             MVC.Net.IHttpServer http = new MVC.Net.IHttpServer(roule, interceptor);
+            
         }
 
         /// <summary>
