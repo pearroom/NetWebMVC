@@ -21,6 +21,7 @@ namespace MVC.Command
         private FileItem fileitem = null;
         private string url_suffix = "";
         private Compress compress = null;
+        public static Hashtable pageCacheList = new Hashtable();
         public Controller()
         {
             fileitem = new FileItem();
@@ -267,27 +268,45 @@ namespace MVC.Command
         {
             try
             {
-                // StringBuilder html = new StringBuilder();
+
                 string html = "";
                 if (!view.Equals(""))
                 {
                     view += "/";
                 }
                 string htmlfile = Config.template + "/" + view + htmlName + Config.template_type;
-                if (File.Exists(htmlfile))
+
+                if (pageCacheList.ContainsKey(htmlfile))
                 {
-                    html = File.ReadAllText(htmlfile);
-                    HTMLParser htmlparser = new HTMLParser(Params);
-                    string tmp = htmlparser.parser(html.ToString());
-                    html = tmp;
+                    html = pageCacheList[htmlfile].ToString();
                 }
                 else
                 {
-                    html = htmlfile + "模板不存在";
+                    if (File.Exists(htmlfile))
+                    {
+                        html = File.ReadAllText(htmlfile);
+                        HTMLParser htmlparser = new HTMLParser(Params);
+                        string tmp = htmlparser.parser(html.ToString());
+                        html = tmp;
+                        if (!Config.open_debug)
+                        {
+                            lock (pageCacheList.SyncRoot)
+                            {
+                                pageCacheList.Add(htmlfile, html);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        html = htmlfile + "模板不存在";
+                    }
+
                 }
 
+
+
                 Response.StatusCode = 200;
-                Response.ContentType = "text/html; charset=" + Config.document_charset; ;
+                Response.ContentType = "text/html; charset=" + Config.document_charset;
                 Write(html.ToString());
             }
             catch (Exception e)
@@ -297,6 +316,12 @@ namespace MVC.Command
             }
 
 
+        }
+        public void ShowStream(byte[] bytes,string ContentType)
+        {
+            Response.StatusCode = 200;
+            Response.ContentType = ContentType+"; charset=" + Config.document_charset;
+            WriteByte(bytes);
         }
         /// <summary>
         /// 输出JSON字符串
@@ -342,7 +367,6 @@ namespace MVC.Command
         public void ShowText(string text)
         {
             Response.StatusCode = 200;
-
             Response.ContentType = "text/html; charset=" + Config.document_charset;
             Write(text);
         }
@@ -369,8 +393,12 @@ namespace MVC.Command
                 sdata = buffer;
             }
             Response.ContentEncoding = Encoding.UTF8;
-            Response.ContentLength64 = sdata.Length;
-            Response.OutputStream.Write(sdata, 0, sdata.Length);
+            WriteByte(sdata);
+        }
+        private void WriteByte(byte[] buffer)
+        {
+            Response.ContentLength64 = buffer.Length;
+            Response.OutputStream.Write(buffer, 0, buffer.Length);
             Response.OutputStream.Close();
             Response.Close();
         }

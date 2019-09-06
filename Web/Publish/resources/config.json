@@ -4,12 +4,24 @@
 		"Compress":"deflate",
 		"maxThreads":10
 	},
-	"Redis":{
-		"Host":"",
-		"Port":6379,
-		"PassWord":"admin",
-		"InitSize":5,
-		"TimeOut":60,
-		"ReadTimeOut":10
-	}	
+  "Redis": {
+    "Host": "",
+    "Port": 6379,
+    "PassWord": "admin",
+    "InitSize": 5,
+    "TimeOut": 60,
+    "ReadTimeOut": 10
+  },
+  "Config": {
+    "AppName": "",
+    "template": "View",
+    "template_type": ".html",
+    "open_cache": true,
+    "cache_max_age": "315360000",
+    "document_charset": "utf-8",
+    "SessonName": "__guid_session",
+    "session_timer": 60,
+    "Session_open": true,
+    "open_debug": true
+  }
 }

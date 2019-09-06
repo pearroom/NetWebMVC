@@ -11,10 +11,11 @@ namespace MVC.Command
         public static string cache_max_age = "315360000";
         public static string RootPath = "";
         public static string document_charset = "utf-8";               // 字符集
-        public static string SessonName = "jsessionid";
+        public static string SessonName = "__guid_session";
         public static int session_timer = 1;
         public static bool Session_open = true;
         public static string AppExe = "";
         public static string AppName = "";
+        public static bool open_debug = true;
     }
 }

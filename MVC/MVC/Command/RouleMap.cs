@@ -18,10 +18,14 @@ namespace MVC.Command
         /// <param name="isInterceptor">是否拦截(默认true拦截)</param>
         public void Add(string path, Controller controller, string view, bool isInterceptor = true)
         {
+
             if (path == "")
-                path = "/";
+                path += "/";
             else
-                path = "/" + path + "/";
+                path += "/" + path + "/";
+            if (!String.IsNullOrEmpty(Config.AppName.Trim()))
+                path = "/" + Config.AppName.Trim() + path;
+
             string s = controller.ToString();
             RouleItem it = new RouleItem();
             it.action = s;
@@ -37,7 +41,7 @@ namespace MVC.Command
             string url = path;
             if (url.IndexOf('?') > 0)
             {
-                url=url.Substring(0, url.IndexOf('?'));
+                url = url.Substring(0, url.IndexOf('?'));
             }
             foreach (var item in items)
             {

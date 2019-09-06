@@ -16,6 +16,30 @@ namespace MVC.Command
         public static JObject configFile;
         private static Assembly assembly = Assembly.LoadFrom(Config.AppExe);
         public static Compress compress = new Compress();
+        public static void clearPageCache()
+        {
+            lock (Controller.pageCacheList.SyncRoot)
+            {
+                Controller.pageCacheList.Clear();
+                Console.WriteLine("Clear Finally");
+            }
+
+        }
+        public static void showPageCache()
+        {
+            int k = 1;
+            lock (Controller.pageCacheList.SyncRoot)
+            {
+                foreach (var key in Controller.pageCacheList.Keys)
+                {
+                    Console.WriteLine(k + ":" + key.ToString());
+                    k++;
+                }
+                Console.WriteLine("Finally");
+            }
+
+            
+        }
         public void RunRoule(object _context_, RouleMap roule, Interceptor interceptor_)
         {
             HttpListenerContext context = _context_ as HttpListenerContext;
@@ -327,6 +351,33 @@ namespace MVC.Command
             s = s + "<hr><div> " + Error + " </div></div></body></html>";
             Write(context_, s);
         }
+        private static void setConfig(JObject param)
+        {
+            
+            if (param["Config"] != null)
+            {
+                JObject jo = param["Config"].ToObject<JObject>();
+                if (jo["AppName"] != null)                
+                    Config.AppName = jo["AppName"].ToString();
+                if (jo["template"] != null)
+                    Config.template = jo["template"].ToString();
+                if (jo["template_type"] != null)
+                    Config.template_type = jo["template_type"].ToString();
+                if (jo["open_cache"] != null)
+                    Config.open_cache = jo["open_cache"].ToObject<bool>();
+                if (jo["document_charset"] != null)
+                    Config.document_charset = jo["document_charset"].ToString();
+                if (jo["SessonName"] != null)
+                    Config.SessonName = jo["SessonName"].ToString();
+                if (jo["session_timer"] != null)
+                    Config.session_timer = jo["session_timer"].ToObject<int>();
+                if (jo["Session_open"] != null)
+                    Config.Session_open = jo["Session_open"].ToObject<bool>();
+                if (jo["open_debug"] != null)
+                    Config.open_debug = jo["open_debug"].ToObject<bool>();
+
+            }
+        }
         public static bool readConifg()
         {
             string file = Config.RootPath + "/" + Config.config_file;
@@ -338,6 +389,7 @@ namespace MVC.Command
                     html.Append(File.ReadAllText(file));
                     configFile = JObject.Parse(html.ToString());
                     compress.CompressType = configFile["Server"]["Compress"].ToString();
+                    setConfig(configFile);
                 }
                 catch (Exception)
                 {

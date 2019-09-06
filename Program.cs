@@ -1,52 +1,62 @@
 ﻿using MVC.Command;
+using MVC.Net;
 using NetWebMVC.Web.Config;
 using NetWebMVC.Web.Controller;
+using System;
 using System.Windows.Forms;
 
 namespace NetWebMVC
 {
-     class Program
+    class Program
     {
         public static RouleMap roule = new RouleMap();
         public static MyInterceptor interceptor = new MyInterceptor();
         static void Main(string[] args)
         {
-            SetConfig();
             SetRoule();
-            MVC.Net.IHttpServer http = new MVC.Net.IHttpServer(roule, interceptor);
-            
+            IHttpServer http = new IHttpServer(roule, interceptor);            
+            RunCommand();
         }
 
         /// <summary>
-        /// 添加路由控制
+        /// 路由设置
         /// </summary>
         static void SetRoule()
         {
+            Config.AppExe = Application.ExecutablePath;
+            Config.RootPath = System.IO.Directory.GetCurrentDirectory();
+
             //路径,控制器,视图目录,是否拦截(默认true)
             roule.Add("", new IndexController(), "", false);
             roule.Add("Home", new HomeController(), "Home", false);
         }
 
-
         /// <summary>
-        /// 系统参数设置
+        /// 操作控制
         /// </summary>
-        static void SetConfig()
+        static void RunCommand()
         {
-            Config.template = "View";                             //视图根目录
-            Config.template_type = ".html";                       //模板文件类型
-            Config.config_file = "resources/config.json";         //配置文件地址
-            Config.mime_file = "resources/mime.json";             //mime配置文件地址
-            Config.open_cache = true;                             //启用缓存
-            Config.cache_max_age = "315360000";                   //缓存过期时间            
-            Config.document_charset = "utf-8";                    //字符集
-            Config.SessonName = "jsessionid";                     //session名称
-            Config.session_timer = 60;                            //session 过期时间
-            Config.Session_open = true;                           //启用sessioin
-            Config.AppExe = Application.ExecutablePath;
-            Config.RootPath = System.IO.Directory.GetCurrentDirectory();
-        }
+            Console.WriteLine("\"clear\" Clear Page Cache");
+            Console.WriteLine("\"show\" Show Page Cache");
+            Console.WriteLine("\"exit\" Exit System");
+            while (true)
+            {
+                String msg = Console.ReadLine();
+                switch (msg)
+                {
+                    case "clear":
+                        Command.clearPageCache();
+                        break;
+                    case "show":
+                        Command.showPageCache();
+                        break;
+                    case "exit":
+                        System.Environment.Exit(0);
+                        break;
+                }
 
+            }
+        }
 
 
 

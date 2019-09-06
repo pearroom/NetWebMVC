@@ -26,8 +26,16 @@ namespace MVC.Command
             {
                 try
                 {
-                    Hashtable sessionList = (Hashtable)HttpSession.sessionList.Clone();
-                    Hashtable sessionMap = (Hashtable)HttpSession.sessionMap.Clone();
+                    Hashtable sessionList;
+                    Hashtable sessionMap;
+                 //   lock (HttpSession.sessionList.SyncRoot)
+                    {
+                        sessionList = (Hashtable)HttpSession.sessionList.Clone();
+                    }
+                  //  lock (HttpSession.sessionMap)
+                    {
+                        sessionMap = (Hashtable)HttpSession.sessionMap.Clone();
+                    }                    
                     item = sessionList.GetEnumerator();
                     while (item.MoveNext())
                     {

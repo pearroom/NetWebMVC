@@ -93,7 +93,6 @@
     <None Include="Web\Publish\assets\json\project.json" />
     <None Include="Web\Publish\assets\json\src.json" />
     <None Include="Web\Publish\assets\json\user.json" />
-    <None Include="Web\Publish\down\test.zip" />
     <None Include="Web\Publish\resources\config.json" />
     <None Include="Web\Publish\resources\mime.json" />
   </ItemGroup>
@@ -217,8 +216,9 @@
     <Content Include="Web\Publish\assets\lay\modules\util.js" />
     <Content Include="Web\Publish\View\Home\index.html" />
     <Content Include="Web\Publish\View\include.html" />
-    <Content Include="Web\Publish\View\index.html" />
     <Content Include="Web\Publish\View\login.html" />
+    <Content Include="Web\Publish\View\main.html" />
+    <Content Include="Web\Publish\View\upfile.html" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="MVC\MVC.csproj">

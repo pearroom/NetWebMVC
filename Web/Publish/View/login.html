@@ -4,67 +4,107 @@
 <head>
 	<meta charset="UTF-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <#include file=include.html />
+	<link rel="stylesheet" href="/assets/css/layui.css">
+	<script src="/assets/js/jquery-1.11.0.min.js"></script>
+	<script src="/assets/layui.all.js"></script>
 	<title>WebMVC</title>
 </head>
 
 <body style="background-color: #F2F2F2">
 
 
-    <form class="layui-form">
-        <button type="button" class="layui-btn" id="test3"><i class="layui-icon"></i>上传文件</button>
-        <div class="layui-form-item">
-            <label class="layui-form-label"><span class="bitian">*</span>头像</label>
-            <div class="layui-upload">
-                <button type="button" class="layui-btn" id="test1">上传图片</button>
-                <div class="layui-upload-list">
-                    <img class="layui-upload-img" id="demo1">
-                    <p id="demoText"></p>
-                </div>
-            </div>
-        </div>
+	<form class="layui-form">
+		<div style="height: 100px;"></div>
+		<div style="margin-left: auto; margin-right: auto; width: 350px;">
+			<div class="layui-card">
+				<div class="layui-card-header">登录</div>
+				<div class="layui-card-body">
+					<table style="width: 100%;">
 
-    </form>
+						<tr>
+							<td style="width: 60px;">账号</td>
+							<td>
+								<div class="col-md-12" style="margin: 4px">
+									<input type="text" class="layui-input" style="width: 100%;" lay-verify="required"
+										placeholder="" lay-verType="tips" name="username" />
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td style="width: 60px;">密码</td>
+							<td>
+								<div class="col-md-12" style="margin: 4px">
+									<input type="password" class="layui-input" style="width: 100%;"
+										lay-verify="required" lay-verType="tips" name="pwd" />
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td style="width: 60px;">验证码</td>
+							<td>
+								<div class="col-md-12" style="margin: 4px">
+									<input type="text" class="layui-input" style="width: 100%;" lay-verify="required"
+										placeholder="" lay-verType="tips" name="vcode" maxlength="4" />
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td style="width: 60px;"></td>
+							<td>
+								<div class="col-md-12" style="margin: 4px">
+									<img id="imgid" src="verifycode" style="cursor:pointer;width:90px;height: 35px;" onclick="changevcode()">
+								</div>
+							</td>
+						</tr>
+
+						<tr>
+							<td style="width: 60px;"></td>
+							<td>
+
+								<div style="float: right; text-align: right; margin: 8px;">
+
+									<button id="btnreg" lay-submit lay-filter="save" class="layui-btn">登录</button>
+								</div>
+							</td>
+						</tr>
+					</table>
+					账号:admin 密码:admin
+				</div>
+			</div>
+		</div>
+
+	</form>
 	<script>
 		
-layui.use(['form','upload'], function() {
-	var form=layui.form;
-    var upload = layui.upload;
-    upload.render({
-        elem: '#test3'
-        , url: 'upimage'
-        , accept: 'file' //普通文件
-        , done: function (res) {
-            console.log(res)
-        }
-    });
-	var uploadInst = upload.render({
-		elem: '#test1'
-		,url: 'upimage'
-		,before: function(obj){
-		  //预读本地文件示例，不支持ie8
-		  obj.preview(function(index, file, result){
-			$('#demo1').attr('src', result); //图片链接（base64）
-		  });
+		var form = layui.form;
+		layui.use('form', function () {
+			form.render("checkbox");
+		});
+
+		form.on('submit(save)', function (data) {
+	
+			var ds = data.field;
+			$.post("check", ds, function (ret) {
+				
+				if (ret.code == 0) {
+					window.location = "Main/";
+				} else {
+					changevcode();
+					layer.msg(ret.message);
+				}
+			});
+			return false;
+		});
+
+		function changevcode() {
+			//console.log("刷新验证码");
+			var randomnum = Math.random();
+            var img = document.getElementById("imgid");
+            img.src = "verifycode?d=" + randomnum;
+			
+
 		}
-		,done: function(res){
-		  //如果上传失败
-		  if(res.code != 0){
-			return layer.msg('上传失败');
-		  }
-		  //上传成功
-		}
-		,error: function(){
-		  //演示失败状态，并实现重传
-		  var demoText = $('#demoText');
-		  demoText.html('<span style="color: #FF5722;">上传失败</span> <a class="layui-btn layui-btn-xs demo-reload">重试</a>');
-		  demoText.find('.demo-reload').on('click', function(){
-			uploadInst.upload();
-		  });
-		}
-	  });	
-	  form.render();
-});
+	
 	</script>
 </body>
 

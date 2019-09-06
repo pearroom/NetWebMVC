@@ -12,7 +12,7 @@ namespace MVC.Net
 
     public class IHttpServer
     {
-        private static HttpListener listener;
+        public HttpListener Server;
         private static SessionClear sessionClear = new SessionClear();
         private RouleMap roule_;
         private Interceptor interceptor_;
@@ -26,12 +26,12 @@ namespace MVC.Net
                 {
                     string port = Command.Command.configFile["Server"]["Port"].ToString();
                     string maxThreads = Command.Command.configFile["Server"]["maxThreads"].ToString();
-                    listener = new HttpListener();
-                   
-                    listener.Prefixes.Add(String.Format("http://+:{0}/", port));
-                    listener.Start();                    
-                    listener.BeginGetContext(new AsyncCallback(MainProcess), listener);
-                    Console.Out.WriteLine("HttpServer Start Port:" + port);
+                    Server = new HttpListener();
+
+                    Server.Prefixes.Add(String.Format("http://+:{0}/", port));
+                    Server.Start();
+                    Server.BeginGetContext(new AsyncCallback(MainProcess), Server);
+                    Console.Out.WriteLine("Server Start Port:" + port);
                 }
             }
             catch (Exception e)

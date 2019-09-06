@@ -20,6 +20,7 @@ namespace MVC.Command
             string content = "";
             content = html;
             content = parserInclude(content);
+            content = parserApp(content);
             foreach (string key in Params_.Keys)
             {
                 object value = Params_[key];
@@ -38,9 +39,31 @@ namespace MVC.Command
                         content = parserObject(key, value, content);
                     }
 
-                }               
+                }
             }
             return content;
+        }
+        private string parserApp(string html)
+        {
+
+            string expr = "__APP__";
+            string value = "";
+            if (string.IsNullOrEmpty(Config.AppName.Trim()))
+            {
+                value = "";
+            }
+            else
+            {
+                value = "/" + Config.AppName;
+            }
+            MatchCollection mc = Regex.Matches(html, expr);
+            foreach (Match m in mc)
+            {
+                html = Regex.Replace(html, m.Value, value);
+            }
+
+
+            return html;
         }
         private string parserText(string key, string value, string html)
         {

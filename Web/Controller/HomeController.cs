@@ -10,11 +10,6 @@ namespace NetWebMVC.Web.Controller
     {
         public void Index()
         {
-            //JArray ja = new JArray();
-            //JObject jo = new JObject();
-            //jo.Add("name", "你好");
-            //ja.Add(jo);
-            // ShowJSON(ja);
             ShowHTML("index");
 
         }
