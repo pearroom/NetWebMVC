@@ -13,27 +13,20 @@ namespace NetWebMVC
         public static MyInterceptor interceptor = new MyInterceptor();
         static void Main(string[] args)
         {
-            SetRoule();
-            IHttpServer http = new IHttpServer(roule, interceptor);            
-            RunCommand();
-        }
-
-        /// <summary>
-        /// 路由设置
-        /// </summary>
-        static void SetRoule()
-        {
             Config.AppExe = Application.ExecutablePath;
             Config.RootPath = System.IO.Directory.GetCurrentDirectory();
 
+            SetRoule();
+            IHttpServer http = new IHttpServer(roule, interceptor);
+            RunCommand();
+        }
+        static void SetRoule()
+        {
             //路径,控制器,视图目录,是否拦截(默认true)
             roule.Add("", new IndexController(), "", false);
             roule.Add("Home", new HomeController(), "Home", false);
         }
 
-        /// <summary>
-        /// 操作控制
-        /// </summary>
         static void RunCommand()
         {
             Console.WriteLine("\"clear\" Clear Page Cache");
