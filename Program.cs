@@ -17,7 +17,7 @@ namespace NetWebMVC
             Config.RootPath = System.IO.Directory.GetCurrentDirectory();
 
             SetRoule();
-            IHttpServer http = new IHttpServer(roule, interceptor);
+            new IHttpServer(roule, interceptor);
             RunCommand();
         }
         static void SetRoule()

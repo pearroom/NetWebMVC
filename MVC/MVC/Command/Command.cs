@@ -1,6 +1,7 @@
 ﻿/*苏兴迎 E-Mail:284238436@qq.com*/
 using Newtonsoft.Json.Linq;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -16,6 +17,23 @@ namespace MVC.Command
         public static JObject configFile;
         private static Assembly assembly = Assembly.LoadFrom(Config.AppExe);
         public static Compress compress = new Compress();
+        private static Hashtable directory_permission = new Hashtable();
+        private bool check_directory_permission(string url)
+        {
+            url = url.ToLower();
+            foreach (string keytmp in directory_permission.Keys)
+            {                
+                string key = keytmp.ToLower();
+                if (url.Length >= key.Length)
+                {
+                    if (url.Substring(0, key.Length).Equals(key))
+                    {
+                        return (bool)directory_permission[key];
+                    }
+                }               
+            }
+            return true;
+        }
         public static void clearPageCache()
         {
             lock (Controller.pageCacheList.SyncRoot)
@@ -38,7 +56,7 @@ namespace MVC.Command
                 Console.WriteLine("Finally");
             }
 
-            
+
         }
         public void RunRoule(object _context_, RouleMap roule, Interceptor interceptor_)
         {
@@ -51,6 +69,11 @@ namespace MVC.Command
                 string url = path;
                 string methodname = "";
                 string url_suffix = "";
+                if (!check_directory_permission(path))
+                {
+                    Error404(context, url);
+                    return;
+                }
                 if (isMimeType(path) == null)
                 {
                     string[] m = path.Split('/');
@@ -353,11 +376,11 @@ namespace MVC.Command
         }
         private static void setConfig(JObject param)
         {
-            
+
             if (param["Config"] != null)
             {
                 JObject jo = param["Config"].ToObject<JObject>();
-                if (jo["AppName"] != null)                
+                if (jo["AppName"] != null)
                     Config.AppName = jo["AppName"].ToString();
                 if (jo["template"] != null)
                     Config.template = jo["template"].ToString();
@@ -375,6 +398,16 @@ namespace MVC.Command
                     Config.Session_open = jo["Session_open"].ToObject<bool>();
                 if (jo["open_debug"] != null)
                     Config.open_debug = jo["open_debug"].ToObject<bool>();
+                if (jo["directory"] != null)
+                {
+                    JArray array = jo["directory"].ToObject<JArray>();
+                    foreach (var item in array)
+                    {
+                        string path = item["path"].ToString();
+                        bool permission = item["permission"].ToObject<bool>();
+                        directory_permission.Add(path, permission);
+                    }
+                }
 
             }
         }

@@ -22,6 +22,12 @@
     "SessonName": "__guid_session",
     "session_timer": 60,
     "Session_open": true,
-    "open_debug": true
+    "open_debug": true,
+    "directory": [
+      {
+        "path": "/view/data/",
+        "permission": false
+      }
+    ]
   }
 }
