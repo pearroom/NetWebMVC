@@ -22,7 +22,7 @@ namespace MVC.Command
         {
             url = url.ToLower();
             foreach (string keytmp in directory_permission.Keys)
-            {                
+            {
                 string key = keytmp.ToLower();
                 if (url.Length >= key.Length)
                 {
@@ -30,7 +30,7 @@ namespace MVC.Command
                     {
                         return (bool)directory_permission[key];
                     }
-                }               
+                }
             }
             return true;
         }
@@ -83,6 +83,13 @@ namespace MVC.Command
                     action = roule.getRoule(path, ref methodname, ref url_suffix);
                     if (action != null)
                     {
+                      if (methodname.ToLower().Equals("index") && url[url.Length - 1] != '/')
+                        {
+                            context.Response.StatusCode = 301;
+                            context.Response.RedirectLocation = url + "/";
+                            Write(context, "");
+                            return;
+                        }
                         HttpSession Session = null;
                         bool isInterceptor = false;
                         if (Config.Session_open)
@@ -135,9 +142,28 @@ namespace MVC.Command
                 {
                     if (Config.open_cache)
                     {
+                    	string path2 = path;
+                        if (!string.IsNullOrEmpty(Config.AppName))
+                        {
+                            string tmp = "/" + Config.AppName + "/";
+                            if (!path.Substring(0, tmp.Length).Equals(tmp))
+                            {
+                                Error404(context, url);
+                                return;
+                            }
+                            else
+                            {
+                                path2 = path.Replace(tmp, "/");
+                            }
+                        }
+                        string root = "";
+                        if (!Config.WebRoot.Equals(""))
+                        {
+                            root ="/"+ Config.WebRoot;
+                        }
 
-                        string htmlfile = System.IO.Directory.GetCurrentDirectory() + path;
-                        if (htmlfile.IndexOf('?') > 0)
+                        string htmlfile = System.IO.Directory.GetCurrentDirectory() + root + path2;
+                        if (htmlfile.IndexOf('?') > -1)
                         {
                             htmlfile = htmlfile.Substring(0, htmlfile.IndexOf('?'));
                         }
@@ -382,6 +408,8 @@ namespace MVC.Command
                 JObject jo = param["Config"].ToObject<JObject>();
                 if (jo["AppName"] != null)
                     Config.AppName = jo["AppName"].ToString();
+                if (jo["WebRoot"] != null)
+                    Config.WebRoot = jo["WebRoot"].ToString();
                 if (jo["template"] != null)
                     Config.template = jo["template"].ToString();
                 if (jo["template_type"] != null)
@@ -471,9 +499,15 @@ namespace MVC.Command
         }
         public static string isMimeType(string path)
         {
+  			if (path.IndexOf('?') > -1)
+            {
+                path = path.Substring(0, path.IndexOf('?'));
+            }
             foreach (var jo in MIME)
             {
-                if (path.ToLower().IndexOf("." + jo["Extensions"].ToString().ToLower()) > 0)
+                string aLastName = path.Substring(path.LastIndexOf(".") + 1, (path.Length - path.LastIndexOf(".") - 1));
+                string mime = jo["Extensions"].ToString().ToLower();
+                if (mime.IndexOf(aLastName) > -1)
                 {
                     return jo["MimeType"].ToString() + "; charset=utf-8";
                 }

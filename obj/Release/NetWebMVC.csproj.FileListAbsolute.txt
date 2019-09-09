@@ -1,2 +1,0 @@
-D:\my\NetWebMVC\obj\Release\NetWebMVC.csprojAssemblyReference.cache
-D:\my\NetWebMVC\obj\Release\NetWebMVC.csproj.CoreCompileInputs.cache

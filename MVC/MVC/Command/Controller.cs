@@ -268,13 +268,17 @@ namespace MVC.Command
         {
             try
             {
-
+                string root = "";
                 string html = "";
                 if (!view.Equals(""))
                 {
                     view += "/";
                 }
-                string htmlfile = Config.template + "/" + view + htmlName + Config.template_type;
+                if (!Config.WebRoot.Equals(""))
+                {
+                    root = Config.WebRoot + "/";
+                }
+                string htmlfile = root + Config.template + "/" + view + htmlName + Config.template_type;
 
                 if (pageCacheList.ContainsKey(htmlfile))
                 {
@@ -286,6 +290,7 @@ namespace MVC.Command
                     {
                         html = File.ReadAllText(htmlfile);
                         HTMLParser htmlparser = new HTMLParser(Params);
+                        htmlparser.path = view;
                         string tmp = htmlparser.parser(html.ToString());
                         html = tmp;
                         if (!Config.open_debug)
@@ -317,10 +322,10 @@ namespace MVC.Command
 
 
         }
-        public void ShowStream(byte[] bytes,string ContentType)
+        public void ShowStream(byte[] bytes, string ContentType)
         {
             Response.StatusCode = 200;
-            Response.ContentType = ContentType+"; charset=" + Config.document_charset;
+            Response.ContentType = ContentType + "; charset=" + Config.document_charset;
             WriteByte(bytes);
         }
         /// <summary>

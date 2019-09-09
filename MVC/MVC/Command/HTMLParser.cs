@@ -11,6 +11,7 @@ namespace MVC.Command
     public class HTMLParser
     {
         Hashtable Params_;
+        public string path { get; set; }
         public HTMLParser(Hashtable Params)
         {
             Params_ = Params;
@@ -128,7 +129,8 @@ namespace MVC.Command
             foreach (Match m in mc)
             {
                 string htmlfile = m.Value;
-                htmlfile = htmlfile.Replace("<#include", "").Replace("file=", "").Replace(">", "").Replace("/", "").Replace("\"", "").Trim();
+                htmlfile = htmlfile.Replace("<#include", "").Replace("file=", "").Replace("/>", "").Replace("\"", "").Trim();
+
                 string value = LoadHtml(htmlfile);
                 html = Regex.Replace(html, m.Value, value);
             }
@@ -137,13 +139,19 @@ namespace MVC.Command
         private string LoadHtml(string htmlfile)
         {
             string file = "";
-            if (htmlfile[0].Equals("/"))
+            string root = "";
+            if (!Config.WebRoot.Equals(""))
             {
-                file = Config.template + htmlfile;
+                root = Config.WebRoot + "/";
+            }
+            if (htmlfile[0] == '/')
+            {
+
+                file = root + Config.template + htmlfile;
             }
             else
             {
-                file = Config.template + "/" + htmlfile;
+                file = root + Config.template+"/"+path + htmlfile;
             }
 
             StringBuilder html = new StringBuilder();

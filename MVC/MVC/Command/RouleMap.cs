@@ -20,9 +20,9 @@ namespace MVC.Command
         {
 
             if (path == "")
-                path += "/";
+                path = "/";
             else
-                path += "/" + path + "/";
+                path = "/" + path + "/";
             if (!String.IsNullOrEmpty(Config.AppName.Trim()))
                 path = "/" + Config.AppName.Trim() + path;
 

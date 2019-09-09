@@ -13,7 +13,8 @@
     "ReadTimeOut": 10
   },
   "Config": {
-    "AppName": "",
+    "AppName": "admin",
+	"WebRoot":"WebRoot",
     "template": "View",
     "template_type": ".html",
     "open_cache": true,

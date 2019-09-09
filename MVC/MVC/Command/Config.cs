@@ -16,6 +16,7 @@ namespace MVC.Command
         public static bool Session_open = true;
         public static string AppExe = "";
         public static string AppName = "";
+        public static string WebRoot = "";
         public static bool open_debug = true;
     }
 }

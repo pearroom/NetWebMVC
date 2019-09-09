@@ -14,10 +14,9 @@ namespace NetWebMVC
         static void Main(string[] args)
         {
             Config.AppExe = Application.ExecutablePath;
-            Config.RootPath = System.IO.Directory.GetCurrentDirectory();
-
-            SetRoule();
+            Config.RootPath = System.IO.Directory.GetCurrentDirectory();            
             new IHttpServer(roule, interceptor);
+            SetRoule();  
             RunCommand();
         }
         static void SetRoule()
