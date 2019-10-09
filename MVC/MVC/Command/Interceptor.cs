@@ -26,6 +26,13 @@ namespace MVC.Command
         {
             return true;
         }
+        public void Redirect(string url)
+        {
+            Response.StatusCode = 301;
+            Response.RedirectLocation = url;
+            Response.AddHeader("Cache-Control", "no-cache,no-store");
+            Write("");
+        }
         public void Write(string content)
         {
             if (content == null)

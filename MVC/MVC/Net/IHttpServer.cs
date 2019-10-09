@@ -44,7 +44,7 @@ namespace MVC.Net
         }
         private void MainProcess(IAsyncResult ar)
         {
-             HttpListener socket = ar.AsyncState as HttpListener;
+            HttpListener socket = ar.AsyncState as HttpListener;
             socket.BeginGetContext(new AsyncCallback(MainProcess), socket);
             var context = socket.EndGetContext(ar);
             Command.Command command = new Command.Command();

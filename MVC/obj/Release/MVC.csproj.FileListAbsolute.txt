@@ -1,0 +1,9 @@
+D:\my\NetWebMVC\MVC\bin\Release\MVC.dll
+D:\my\NetWebMVC\MVC\bin\Release\MVC.pdb
+D:\my\NetWebMVC\MVC\bin\Release\Newtonsoft.Json.dll
+D:\my\NetWebMVC\MVC\bin\Release\Newtonsoft.Json.xml
+D:\my\NetWebMVC\MVC\obj\Release\MVC.csproj.CoreCompileInputs.cache
+D:\my\NetWebMVC\MVC\obj\Release\MVC.csproj.CopyComplete
+D:\my\NetWebMVC\MVC\obj\Release\MVC.dll
+D:\my\NetWebMVC\MVC\obj\Release\MVC.pdb
+D:\my\NetWebMVC\MVC\obj\Release\MVC.csprojAssemblyReference.cache

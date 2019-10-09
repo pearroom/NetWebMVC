@@ -17,6 +17,9 @@ namespace MVC.Command
         public static string AppExe = "";
         public static string AppName = "";
         public static string WebRoot = "";
+        public static string Error404 = "";
+        public static string Error500 = "";
+        public static bool JsonToLower = false;
         public static bool open_debug = true;
     }
 }

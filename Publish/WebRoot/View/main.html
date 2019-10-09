@@ -1,0 +1,70 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>WebMVC</title>
+
+	<#include file="include.html"/>
+
+</head>
+
+<body class="layui-layout-body">
+    <div class="layui-layout layui-layout-admin">
+        <div class="layui-header" style="background-color: teal;">
+            <div class="layui-logo" style="background-color: teal;color:cornsilk;border-bottom:1px solid #FFF">WebMVC</div>
+            <!-- 头部区域（可配合layui已有的水平导航） -->
+
+            <ul class="layui-nav layui-layout-right">
+                <li class="layui-nav-item">
+                    <a href="javascript:;">
+                        <i class="layui-icon layui-icon-username"></i>
+                        #{realname}
+                    </a>
+
+                </li>
+                <li class="layui-nav-item">
+                    <a href="https://www.delphiwebmvc.com/doc/help.html">
+                        <i class="layui-icon layui-icon-help"></i>
+                        开发手册
+                    </a>
+                </li>
+                <li class="layui-nav-item">
+                    <a href="__APP__/">
+                        <i class="layui-icon layui-icon-close-fill"></i>退出
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="layui-side" style="background-color: teal;">
+            <div class="layui-side-scroll">
+                <!-- 左侧导航区域（可配合layui已有的垂直导航） -->
+                <ul class="layui-nav layui-nav-tree" lay-filter="test" style="background-color: teal;">
+                    <!--<#list data=menuls item=i>
+
+                        <li class="layui-nav-item">
+
+                        <a id="__APP__#{i.url}" href="javascript:;" onclick="load(this.id)">
+                        <i class="layui-icon layui-icon-app"></i>
+                        <cite>#{i.menuname}</cite>
+                        </a>
+                        </li>
+                    </#list>-->
+
+                </ul>
+            </div>
+        </div>
+
+        <div class="layui-body">
+            <!-- 内容主体区域 -->
+            <div style="padding: 10px;" id="_content_">
+
+            </div>
+        </div>
+
+    </div>
+    <script src="__APP__/js/index.js"></script>
+</body>
+
+</html>

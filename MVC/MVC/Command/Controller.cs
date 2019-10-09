@@ -8,6 +8,8 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Text.RegularExpressions;
+
 namespace MVC.Command
 {
     public class Controller
@@ -132,6 +134,8 @@ namespace MVC.Command
                 byte[] sdata = new byte[len];
                 Request.InputStream.Read(sdata, 0, len);
                 content = Encoding.UTF8.GetString(sdata);
+
+               
             }
 
             return content;
@@ -238,9 +242,12 @@ namespace MVC.Command
                 key = key + "=";
                 foreach (string item in ps)
                 {
-                    if (item.Substring(0, key.Length).Equals(key))
+                   
+                    if (item.Length >= key.Length && item.Substring(0, key.Length).Equals(key))
                     {
                         value = item.Substring(item.IndexOf("=") + 1);
+                        if (!string.IsNullOrEmpty(value))
+                            value = Uri.UnescapeDataString(value);
                         break;
                     }
                 }
@@ -336,6 +343,18 @@ namespace MVC.Command
         {
             Response.StatusCode = 200;
             Response.ContentType = "application/json; charset=" + Config.document_charset;
+            if (Config.JsonToLower)
+            {
+                var rx = new Regex(@"""(?<v>(\w)*?)"":", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.Singleline);
+                var match = rx.Match(json);
+                while (match.Success)
+                {
+                    var originalKeyName = match.Result("${v}");
+                    var currentKeyName = originalKeyName.ToString().ToLower();
+                    json = rx.Replace(json, "\"" + currentKeyName + "\":", 1, match.Index);
+                    match = match.NextMatch();
+                }
+            }
             Write(json);
         }
         /// <summary>
@@ -362,7 +381,18 @@ namespace MVC.Command
 
                 Console.Out.WriteLine(e.Message);
             }
-
+            if (Config.JsonToLower)
+            {
+                var rx = new Regex(@"""(?<v>(\w)*?)"":", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.Singleline);
+                var match = rx.Match(json);
+                while (match.Success)
+                {
+                    var originalKeyName = match.Result("${v}");
+                    var currentKeyName = originalKeyName.ToString().ToLower();
+                    json = rx.Replace(json, "\"" + currentKeyName + "\":", 1, match.Index);
+                    match = match.NextMatch();
+                }
+            }
             Write(json);
         }
         /// <summary>
@@ -406,6 +436,26 @@ namespace MVC.Command
             Response.OutputStream.Write(buffer, 0, buffer.Length);
             Response.OutputStream.Close();
             Response.Close();
+        }
+        public void Success(int code = 0, string message = "操作成功")
+        {
+            JObject jo = new JObject();
+            jo["code"] = code;
+            jo["message"] = message;
+            ShowJSON(jo);
+        }
+        public void Fail(int code = -1, string message = "操作失败")
+        {
+            JObject jo = new JObject();
+            jo["code"] = code;
+            jo["message"] = message;
+            ShowJSON(jo);
+        }
+        public void Redirect(string url)
+        {
+            Response.StatusCode = 301;
+            Response.RedirectLocation = url;
+            Write("");
         }
     }
 }

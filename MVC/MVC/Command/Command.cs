@@ -83,10 +83,11 @@ namespace MVC.Command
                     action = roule.getRoule(path, ref methodname, ref url_suffix);
                     if (action != null)
                     {
-                      if (methodname.ToLower().Equals("index") && url[url.Length - 1] != '/')
+                        if (methodname.ToLower().Equals("index") && url[url.Length - 1] != '/')
                         {
                             context.Response.StatusCode = 301;
                             context.Response.RedirectLocation = url + "/";
+                            context.Response.AddHeader("Cache-Control", "no-cache,no-store");
                             Write(context, "");
                             return;
                         }
@@ -98,8 +99,8 @@ namespace MVC.Command
                         }
                         if (action.isInterceptor)
                         {
-                            Type Interceptor_type = Type.GetType(interceptor_.ToString());
-                            object Interceptor_obj = Activator.CreateInstance(Interceptor_type);
+                            object Interceptor_obj = assembly.CreateInstance(interceptor_.ToString()); // 创建类的实例 
+                            Type Interceptor_type = Interceptor_obj.GetType();
                             MethodInfo Interceptor_method = Interceptor_type.GetMethod("Init", new Type[] { typeof(HttpListenerContext), typeof(HttpSession) });
                             object[] parameters1 = new object[] { context, Session };
                             Interceptor_method.Invoke(Interceptor_obj, parameters1);
@@ -116,6 +117,10 @@ namespace MVC.Command
                             object[] parameters = new object[] { context, Session, action.view, url_suffix, compress };
                             method.Invoke(obj, parameters);
                             method = type.GetMethod(methodname);
+                            if (method == null)
+                            {
+                                method = type.GetMethod(methodname.ToLower());
+                            }
                             if (method != null)
                             {
                                 object[] parameters1 = formatParam(_context_, method, url_suffix);
@@ -140,66 +145,64 @@ namespace MVC.Command
                 }
                 else
                 {
-                    if (Config.open_cache)
+                    if (Config.open_cache && !Config.open_debug)
                     {
-                    	string path2 = path;
-                        if (!string.IsNullOrEmpty(Config.AppName))
-                        {
-                            string tmp = "/" + Config.AppName + "/";
-                            if (!path.Substring(0, tmp.Length).Equals(tmp))
-                            {
-                                Error404(context, url);
-                                return;
-                            }
-                            else
-                            {
-                                path2 = path.Replace(tmp, "/");
-                            }
-                        }
-                        string root = "";
-                        if (!Config.WebRoot.Equals(""))
-                        {
-                            root ="/"+ Config.WebRoot;
-                        }
-
-                        string htmlfile = System.IO.Directory.GetCurrentDirectory() + root + path2;
-                        if (htmlfile.IndexOf('?') > -1)
-                        {
-                            htmlfile = htmlfile.Substring(0, htmlfile.IndexOf('?'));
-                        }
-                        if (File.Exists(htmlfile))
-                        {
-                            DateTime n = DateTime.Now;
-                            string Modified_time = n.ToUniversalTime().ToString("r");
-                            string Expires_time = n.AddHours(24).ToUniversalTime().ToString("r");
-                            context.Response.AddHeader("Cache-Control", "max-age=" + Config.cache_max_age);
-                            context.Response.AddHeader("Pragma", "Pragma");
-                            context.Response.AddHeader("Last-Modified", Modified_time);
-                            context.Response.AddHeader("Expires", Expires_time);
-
-                            string extension = System.IO.Path.GetExtension(htmlfile).Replace(".", "");
-                            byte[] data = File.ReadAllBytes(htmlfile);
-                            string mime = getMimeType(extension);
-                            context.Response.ContentType = mime;
-                            context.Response.StatusCode = 200;
-                            WriteByte(context, data);
-                        }
-                        else
-                        {
-                            Error404(context, path);
-                        }
+                        DateTime n = DateTime.Now;
+                        string Modified_time = n.ToUniversalTime().ToString("r");
+                        string Expires_time = n.AddHours(24).ToUniversalTime().ToString("r");
+                        context.Response.AddHeader("Cache-Control", "max-age=" + Config.cache_max_age);
+                        context.Response.AddHeader("Pragma", "Pragma");
+                        context.Response.AddHeader("Last-Modified", Modified_time);
+                        context.Response.AddHeader("Expires", Expires_time);
                     }
                     else
                     {
                         context.Response.AddHeader("Cache-Control", "no-cache,no-store");
                     }
+                    string path2 = path;
+                    if (!string.IsNullOrEmpty(Config.AppName))
+                    {
+                        string tmp = "/" + Config.AppName + "/";
+                        if (!path.Substring(0, tmp.Length).Equals(tmp) && !path.Equals("/favicon.ico"))
+                        {
+                            Error404(context, url);
+                            return;
+                        }
+                        else
+                        {
+                            path2 = path.Replace(tmp, "/");
+                        }
+                    }
+                    string root = "";
+                    if (!Config.WebRoot.Equals(""))
+                    {
+                        root = "/" + Config.WebRoot;
+                    }
 
+                    string htmlfile = System.IO.Directory.GetCurrentDirectory() + root + path2;
+                    if (htmlfile.IndexOf('?') > -1)
+                    {
+                        htmlfile = htmlfile.Substring(0, htmlfile.IndexOf('?'));
+                    }
+                    if (File.Exists(htmlfile))
+                    {
+                        string extension = System.IO.Path.GetExtension(htmlfile).Replace(".", "");
 
-
+                        byte[] data = File.ReadAllBytes(htmlfile);
+                        string mime = getMimeType(extension);
+                        context.Response.ContentType = mime;
+                        context.Response.StatusCode = 200;
+                        WriteByte(context, data);
+                    }
+                    else
+                    {
+                        Error404(context, path);
+                    }
                 }
             }
             catch (Exception e)
             {
+                Console.WriteLine(e.Message);
                 Error500(context, e.Message);
             }
 
@@ -384,20 +387,38 @@ namespace MVC.Command
         }
         private void Error404(HttpListenerContext context_, string url)
         {
+            string s = "";
             context_.Response.StatusCode = 404;
             context_.Response.ContentType = "text/html; charset=" + Config.document_charset;
-            string s = "<html><body><div style=\"text-align: left;\">";
+            s = "<html><body><div style=\"text-align: left;\">";
             s = s + "<div><h1>Error 404</h1></div>";
             s = s + "<hr><div>[ " + url + " ] Not Find Page </div></div></body></html>";
+            if (!Config.Error404.Equals(""))
+            {
+                string htmlfile = Config.Error404;
+                if (File.Exists(htmlfile))
+                {
+                    s = File.ReadAllText(htmlfile);
+                }
+            }
             Write(context_, s);
         }
         private void Error500(HttpListenerContext context_, string Error)
         {
+            string s = "";
             context_.Response.StatusCode = 500;
             context_.Response.ContentType = "text/html; charset=" + Config.document_charset;
-            string s = "<html><body><div style=\"text-align: left;\">";
+            s = "<html><body><div style=\"text-align: left;\">";
             s = s + "<div><h1>Error 500</h1></div>";
             s = s + "<hr><div> " + Error + " </div></div></body></html>";
+            if (!Config.Error500.Equals(""))
+            {
+                string htmlfile = Config.Error500;
+                if (File.Exists(htmlfile))
+                {
+                    s = File.ReadAllText(htmlfile);
+                }
+            }
             Write(context_, s);
         }
         private static void setConfig(JObject param)
@@ -426,6 +447,14 @@ namespace MVC.Command
                     Config.Session_open = jo["Session_open"].ToObject<bool>();
                 if (jo["open_debug"] != null)
                     Config.open_debug = jo["open_debug"].ToObject<bool>();
+                if (jo["Error404"] != null)
+                    if (!jo["Error404"].ToObject<string>().Trim().Equals(""))
+                        Config.Error404 = Config.WebRoot + "/" + jo["Error404"].ToObject<string>();
+                if (jo["Error500"] != null)
+                    if (!jo["Error500"].ToObject<string>().Trim().Equals(""))
+                        Config.Error500 = Config.WebRoot + "/" + jo["Error500"].ToObject<string>();
+                if (jo["JsonToLower"] != null)
+                    Config.JsonToLower = jo["JsonToLower"].ToObject<bool>();
                 if (jo["directory"] != null)
                 {
                     JArray array = jo["directory"].ToObject<JArray>();
@@ -499,7 +528,7 @@ namespace MVC.Command
         }
         public static string isMimeType(string path)
         {
-  			if (path.IndexOf('?') > -1)
+            if (path.IndexOf('?') > -1)
             {
                 path = path.Substring(0, path.IndexOf('?'));
             }
