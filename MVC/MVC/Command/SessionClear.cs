@@ -20,12 +20,13 @@ namespace MVC.Command
         }
         private void checkSession()
         {
-            IDictionaryEnumerator item;
-            IDictionaryEnumerator item1;
+
             while (true)
             {
                 try
                 {
+                    IDictionaryEnumerator item;
+                    IDictionaryEnumerator item1;
                     Hashtable sessionList;
                     Hashtable sessionMap;
                  //   lock (HttpSession.sessionList.SyncRoot)

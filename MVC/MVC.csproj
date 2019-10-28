@@ -55,6 +55,7 @@
     <Compile Include="MVC\Command\HTMLParser.cs" />
     <Compile Include="MVC\Command\HttpSession.cs" />
     <Compile Include="MVC\Command\Interceptor.cs" />
+    <Compile Include="MVC\Command\Log.cs" />
     <Compile Include="MVC\Command\RouleItem.cs" />
     <Compile Include="MVC\Command\RouleMap.cs" />
     <Compile Include="MVC\Command\SessionClear.cs" />

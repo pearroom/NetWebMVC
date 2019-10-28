@@ -1,4 +1,5 @@
 ﻿/*苏兴迎 E-Mail:284238436@qq.com*/
+using MVC.MVC.Command;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections;
@@ -58,14 +59,19 @@ namespace MVC.Command
 
 
         }
-        public void RunRoule(object _context_, RouleMap roule, Interceptor interceptor_)
+        public void RunRoule(HttpListenerContext context, RouleMap roule, Interceptor interceptor_)
         {
-            HttpListenerContext context = _context_ as HttpListenerContext;
+            if (context == null)
+            {
+                Log.Print("链接还未建立");
+                return;
+            }
             try
             {
 
                 string path = context.Request.RawUrl.Trim();
                 path = Uri.UnescapeDataString(path);
+                //  Log.Print(path);
                 string url = path;
                 string methodname = "";
                 string url_suffix = "";
@@ -74,13 +80,14 @@ namespace MVC.Command
                     Error404(context, url);
                     return;
                 }
+
                 if (isMimeType(path) == null)
                 {
                     string[] m = path.Split('/');
 
                     RouleItem action = null;
-
                     action = roule.getRoule(path, ref methodname, ref url_suffix);
+
                     if (action != null)
                     {
                         if (methodname.ToLower().Equals("index") && url[url.Length - 1] != '/')
@@ -91,6 +98,7 @@ namespace MVC.Command
                             Write(context, "");
                             return;
                         }
+
                         HttpSession Session = null;
                         bool isInterceptor = false;
                         if (Config.Session_open)
@@ -113,18 +121,51 @@ namespace MVC.Command
 
                             object obj = assembly.CreateInstance(action.action); // 创建类的实例 
                             Type type = obj.GetType();
+                            MethodInfo method_main = type.GetMethod(methodname);
+                            if (method_main == null)
+                            {
+                                method_main = type.GetMethod(methodname.ToLower());
+                            }
                             MethodInfo method = type.GetMethod("Init", new Type[] { typeof(HttpListenerContext), typeof(HttpSession), typeof(string), typeof(string), typeof(Compress) });
                             object[] parameters = new object[] { context, Session, action.view, url_suffix, compress };
-                            method.Invoke(obj, parameters);
-                            method = type.GetMethod(methodname);
-                            if (method == null)
+
+                            try
                             {
-                                method = type.GetMethod(methodname.ToLower());
+                                method.Invoke(obj, parameters);
                             }
-                            if (method != null)
+                            catch (Exception e)
                             {
-                                object[] parameters1 = formatParam(_context_, method, url_suffix);
-                                method.Invoke(obj, parameters1);
+
+                                Log.Print("[Init]方法执行异常:" + path + "|" + e.Message + "|" + method.ToString());
+                                Error404(context, url);
+                            }
+
+                            if (method_main != null)
+                            {
+                                object[] parameters1 = null;
+                                try
+                                {
+                                    parameters1 = formatParam(context, method_main, url_suffix);
+                                }
+                                catch (Exception e)
+                                {
+
+                                    Log.Print("[formatParam]异常:" + path + "|" + e.Message);
+                                    parameters1 = null;
+                                }
+                                try
+                                {
+                                    method_main.Invoke(obj, parameters1);
+                                    return;
+                                }
+                                catch (Exception e)
+                                {
+
+                                    Log.Print("方法执行异常:" + path + "|" + e.Message + "|" + method_main.ToString());
+
+                                }
+
+
                                 if (context.Response.ContentLength64 == 0)
                                 {
                                     Error404(context, url);
@@ -202,17 +243,17 @@ namespace MVC.Command
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                Log.Print("路由方法[RunRoule]:" + e.Message);
                 Error500(context, e.Message);
             }
 
         }
-        private object[] formatParam(object _context_, MethodInfo method, string url_suffix)
+        private object[] formatParam(HttpListenerContext context, MethodInfo method, string url_suffix)
         {
-            HttpListenerContext context = _context_ as HttpListenerContext;
+            //  HttpListenerContext context = _context_ as HttpListenerContext;
+            string[] urlparams = null;
             ParameterInfo[] parames = method.GetParameters();
             object[] parameters = new object[parames.Length];
-            string[] urlparams = null;
             if (context.Request.HttpMethod.Equals("GET"))
             {
                 if (url_suffix.IndexOf('?') > 0 && parames.Length > 0)
@@ -240,6 +281,7 @@ namespace MVC.Command
                 }
                 else
                 {
+
                     if (parames.Length > 0)
                     {
                         urlparams = url_suffix.Split('/');

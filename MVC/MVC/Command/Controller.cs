@@ -1,4 +1,5 @@
 ﻿/*苏兴迎 E-Mail:284238436@qq.com*/
+using MVC.MVC.Command;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -407,28 +408,36 @@ namespace MVC.Command
         }
         private void Write(string content)
         {
-            if (content == null)
+            try
             {
-                content = "";
+                if (content == null)
+                {
+                    content = "";
+                }
+                byte[] buffer = Encoding.UTF8.GetBytes(content);
+                byte[] sdata = null;
+                if (compress.CompressType.ToLower().Equals("deflate"))
+                {
+                    sdata = compress.DeflateCompress(buffer);
+                    Response.AddHeader("Content-Encoding", "deflate");
+                }
+                else if (compress.CompressType.ToLower().Equals("gzip"))
+                {
+                    Response.AddHeader("Content-Encoding", "gzip");
+                    sdata = compress.GZipCompress(buffer);
+                }
+                else
+                {
+                    sdata = buffer;
+                }
+                Response.ContentEncoding = Encoding.UTF8;
+                WriteByte(sdata);
             }
-            byte[] buffer = Encoding.UTF8.GetBytes(content);
-            byte[] sdata = null;
-            if (compress.CompressType.ToLower().Equals("deflate"))
+            catch (Exception e)
             {
-                sdata = compress.DeflateCompress(buffer);
-                Response.AddHeader("Content-Encoding", "deflate");
+
+                Log.Print(e.Message); 
             }
-            else if (compress.CompressType.ToLower().Equals("gzip"))
-            {
-                Response.AddHeader("Content-Encoding", "gzip");
-                sdata = compress.GZipCompress(buffer);
-            }
-            else
-            {
-                sdata = buffer;
-            }
-            Response.ContentEncoding = Encoding.UTF8;
-            WriteByte(sdata);
         }
         private void WriteByte(byte[] buffer)
         {
