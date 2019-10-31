@@ -11,13 +11,14 @@ namespace NetWebMVC
     {
         public static RouleMap roule = new RouleMap();
         public static MyInterceptor interceptor = new MyInterceptor();
+        public static IHttpServer httpserver;
         static void Main(string[] args)
         {
+            AppDomain.CurrentDomain.ProcessExit += new EventHandler(ProcessExit);
             Config.AppExe = Application.ExecutablePath;
-            Config.RootPath = System.IO.Directory.GetCurrentDirectory();            
-            new IHttpServer(roule, interceptor);
-            SetRoule();  
-            RunCommand();
+            Config.RootPath = System.IO.Directory.GetCurrentDirectory();
+            httpserver = new IHttpServer(roule, interceptor);
+            SetRoule();
         }
         static void SetRoule()
         {
@@ -25,32 +26,9 @@ namespace NetWebMVC
             roule.Add("", new IndexController(), "", false);
             roule.Add("Home", new HomeController(), "Home", false);
         }
-
-        static void RunCommand()
+        static void ProcessExit(object sender, EventArgs e)
         {
-            Console.WriteLine("\"clear\" Clear Page Cache");
-            Console.WriteLine("\"show\" Show Page Cache");
-            Console.WriteLine("\"exit\" Exit System");
-            while (true)
-            {
-                String msg = Console.ReadLine();
-                switch (msg)
-                {
-                    case "clear":
-                        Command.clearPageCache();
-                        break;
-                    case "show":
-                        Command.showPageCache();
-                        break;
-                    case "exit":
-                        System.Environment.Exit(0);
-                        break;
-                }
-
-            }
+            httpserver.Stop();
         }
-
-
-
     }
 }

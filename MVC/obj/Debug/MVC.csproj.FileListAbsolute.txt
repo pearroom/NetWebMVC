@@ -1,3 +1,11 @@
+D:\su\VX-Server\MVC\bin\Debug\MVC.dll
+D:\su\VX-Server\MVC\bin\Debug\MVC.pdb
+D:\su\VX-Server\MVC\bin\Debug\Newtonsoft.Json.dll
+D:\su\VX-Server\MVC\bin\Debug\Newtonsoft.Json.xml
+D:\su\VX-Server\MVC\obj\Debug\MVC.csproj.CoreCompileInputs.cache
+D:\su\VX-Server\MVC\obj\Debug\MVC.csproj.CopyComplete
+D:\su\VX-Server\MVC\obj\Debug\MVC.dll
+D:\su\VX-Server\MVC\obj\Debug\MVC.pdb
 D:\my\NetWebMVC\MVC\bin\Debug\MVC.dll
 D:\my\NetWebMVC\MVC\bin\Debug\MVC.pdb
 D:\my\NetWebMVC\MVC\bin\Debug\Newtonsoft.Json.dll
@@ -7,11 +15,3 @@ D:\my\NetWebMVC\MVC\obj\Debug\MVC.csproj.CopyComplete
 D:\my\NetWebMVC\MVC\obj\Debug\MVC.dll
 D:\my\NetWebMVC\MVC\obj\Debug\MVC.pdb
 D:\my\NetWebMVC\MVC\obj\Debug\MVC.csprojAssemblyReference.cache
-D:\su\VX-Server\MVC\bin\Debug\MVC.dll
-D:\su\VX-Server\MVC\bin\Debug\MVC.pdb
-D:\su\VX-Server\MVC\bin\Debug\Newtonsoft.Json.dll
-D:\su\VX-Server\MVC\bin\Debug\Newtonsoft.Json.xml
-D:\su\VX-Server\MVC\obj\Debug\MVC.csproj.CoreCompileInputs.cache
-D:\su\VX-Server\MVC\obj\Debug\MVC.csproj.CopyComplete
-D:\su\VX-Server\MVC\obj\Debug\MVC.dll
-D:\su\VX-Server\MVC\obj\Debug\MVC.pdb

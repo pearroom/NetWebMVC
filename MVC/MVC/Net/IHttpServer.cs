@@ -2,12 +2,9 @@
 using MVC.Command;
 using MVC.MVC.Command;
 using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.IO;
 using System.Net;
-using System.Text;
 using System.Threading;
-
 namespace MVC.Net
 {
 
@@ -15,34 +12,80 @@ namespace MVC.Net
     {
         public HttpListener Server;
         private static SessionClear sessionClear = new SessionClear();
-        private RouleMap roule_;
-        private Interceptor interceptor_;
-        public IHttpServer(RouleMap roule, Interceptor interceptor)
+        private static Interceptor interceptor_;
+        public RouleMap Roule { get; set; }
+        private bool issuccess = false;
+        public IHttpServer(Interceptor interceptor, string ExecutablePath)
         {
-            try
+            issuccess = true;
+            Roule = new RouleMap();
+            Config.AppExe = ExecutablePath;
+            Config.RootPath = System.IO.Directory.GetCurrentDirectory();
+            interceptor_ = interceptor;
+            if (!Command.Command.readMime())
             {
-                roule_ = roule;
-                interceptor_ = interceptor;
-                if (Command.Command.readMime() && Command.Command.readConifg())
+                Log.Print("Mime配置文件读取失败");
+                issuccess = false;
+            }
+            if (!Command.Command.readConifg())
+            {
+                Log.Print("Conifg配置文件读取失败");
+                issuccess = false;
+            }
+        }
+
+        public void Start()
+        {
+            if (issuccess)
+            {
+                try
                 {
                     string port = Command.Command.configFile["Server"]["Port"].ToString();
-                   // string maxThreads = Command.Command.configFile["Server"]["maxThreads"].ToString();
+                    // string maxThreads = Command.Command.configFile["Server"]["maxThreads"].ToString();
                     Server = new HttpListener();
                     Server.AuthenticationSchemes = AuthenticationSchemes.Anonymous;
                     Server.Prefixes.Add(String.Format("http://+:{0}/", port));
                     Server.Stop();
-                    Server.Start();                    
+                    Server.Start();
                     Log.Print("Server Start Port:" + port);
                     Thread.Sleep(1000);
+                    new Thread(RunCommand).Start();
+                    Server.BeginGetContext(new AsyncCallback(MainProcess), Server);
                 }
+                catch (Exception e)
+                {
+
+                    Log.Print("服务启动[IHttpServer]:" + e.Message);
+                }                
             }
-            catch (Exception e)
+            else
             {
-
-                Log.Print("服务启动[IHttpServer]:" + e.Message);
+                Log.Print("服务启动失败");
             }
-            Server.BeginGetContext(new AsyncCallback(MainProcess), Server);
+        }
+        private void RunCommand()
+        {
+            Console.WriteLine("\"clear\" Clear Page Cache");
+            Console.WriteLine("\"show\" Show Page Cache");
+            Console.WriteLine("\"exit\" Exit System");
+            while (true)
+            {
+                String msg = Console.ReadLine();
+                switch (msg)
+                {
+                    case "clear":
+                        Command.Command.clearPageCache();
+                        break;
+                    case "show":
+                        Command.Command.showPageCache();
+                        break;
+                    case "exit":
+                        Stop();
+                        System.Environment.Exit(0);
+                        break;
+                }
 
+            }
         }
         public void Stop()
         {
@@ -56,7 +99,7 @@ namespace MVC.Net
             try
             {
                 Server.BeginGetContext(new AsyncCallback(MainProcess), Server);
-                socket = ar.AsyncState as HttpListener;               
+                socket = ar.AsyncState as HttpListener;
                 context = socket.EndGetContext(ar);
 
             }
@@ -69,7 +112,7 @@ namespace MVC.Net
             try
             {
                 Command.Command command = new Command.Command();
-                command.RunRoule(context, roule_, interceptor_);
+                command.RunRoule(context, Roule, interceptor_);
             }
             catch (Exception e)
             {
