@@ -9,49 +9,19 @@
 	{
 		class Program
 		{
-			public static RouleMap roule = new RouleMap();
-			public static MyInterceptor interceptor = new MyInterceptor();
+			public static IHttpServer httpserver;
 			static void Main(string[] args)
 			{
-				Config.AppExe = Application.ExecutablePath;
-				Config.RootPath = System.IO.Directory.GetCurrentDirectory();
-
-				SetRoule();
-				IHttpServer http = new IHttpServer(roule, interceptor);
-				RunCommand();
-			}
-			static void SetRoule()
-			{
+				AppDomain.CurrentDomain.ProcessExit += new EventHandler(ProcessExit);
+				httpserver = new IHttpServer(new MyInterceptor(), Application.ExecutablePath);
 				//路径,控制器,视图目录,是否拦截(默认true)
-				roule.Add("", new IndexController(), "", false);
-				roule.Add("Home", new HomeController(), "Home", false);
+				httpserver.Roule.Add("", new IndexController(), "", false);
+				httpserver.Roule.Add("Home", new HomeController(), "Home");
+				httpserver.Start();
 			}
-
-			static void RunCommand()
+			static void ProcessExit(object sender, EventArgs e)
 			{
-				Console.WriteLine("\"clear\" Clear Page Cache");
-				Console.WriteLine("\"show\" Show Page Cache");
-				Console.WriteLine("\"exit\" Exit System");
-				while (true)
-				{
-					String msg = Console.ReadLine();
-					switch (msg)
-					{
-						case "clear":
-							Command.clearPageCache();
-							break;
-						case "show":
-							Command.showPageCache();
-							break;
-						case "exit":
-							System.Environment.Exit(0);
-							break;
-					}
-
-				}
+				httpserver.Stop();
 			}
-
-
-
 		}
 	}

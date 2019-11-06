@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MVC.MVC.Command
+namespace MVC.Command
 {
-    class Log
+    public class Log
     {
         public static void Print(string msg)
         {
